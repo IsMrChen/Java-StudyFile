@@ -1,4 +1,7 @@
-# Mall-StudyFile
+<p align="center">
+<img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2481424715,2807309609&fm=26&gp=0.jpg" width="200" height="200"/>
+</p>
+<h1 align="center">MailStudyFile</h1>
 
 这个仓库用于记录学习 macro的开源项目过程中的笔记和思考
 
@@ -17,6 +20,13 @@
 [https://jongcychen.gitee.io/mall-studyfile](https://jongcychen.gitee.io/mall-studyfile)
 
 [我的博客](https://blog.csdn.net/Dan1374219106)
+
+我的公众号：
+
+<p align="center">
+<img src="wxgzh.jpg" width="150" height="150"/>
+</p>
+<h3 align="center">松鼠技术站</h1>
 
 
 
