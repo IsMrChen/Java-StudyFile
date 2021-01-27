@@ -12,6 +12,10 @@
 
 [https://ismrchen.github.io/Mall-StudyFile/](https://ismrchen.github.io/Mall-StudyFile/)
 
+推荐使用码云地址(访问速度更快)：
+
+[https://jongcychen.gitee.io/mall-studyfile](https://jongcychen.gitee.io/mall-studyfile)
+
 [我的博客](https://blog.csdn.net/Dan1374219106)
 
 
