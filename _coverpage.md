@@ -5,5 +5,5 @@
 
 [常用资源](https://shimo.im/docs/MuiACIg1HlYfVxrj/)
 [GitHub](https://github.com/Snailclimb/docsify-demo)
-[开始阅读](http://localhost:3000/#/README)
+[开始阅读](https://ismrchen.github.io/Mall-StudyFile/#/README)
 

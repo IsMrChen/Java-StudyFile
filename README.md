@@ -2,6 +2,17 @@
 
 这个仓库用于记录学习 macro的开源项目过程中的笔记和思考
 
-[项目文档mall-learning](http://www.macrozheng.com/#/README)
+学习项目：
 
-gitHub地址[https://github.com/macrozheng](https://github.com/macrozheng)
+- [项目文档mall-learning](http://www.macrozheng.com/#/README)
+
+- gitHub地址[https://github.com/macrozheng](https://github.com/macrozheng)
+
+本文档地址链接：
+
+[https://ismrchen.github.io/Mall-StudyFile/](https://ismrchen.github.io/Mall-StudyFile/)
+
+[我的博客](https://blog.csdn.net/Dan1374219106)
+
+
+
