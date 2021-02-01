@@ -1,4 +1,4 @@
-## markdown如何写出项目目录结构
+### 前言
 
 使用markdown文档时，想对整个目录做一个说明，看有大佬是这样显示的，比如SpringBoot的代码结构：
 
@@ -24,7 +24,11 @@ springboot-hello
 
 
 
-### 安装命令：
+### 安装命令
+
+这里要用到npm的安装命令，那么首先就需要安装node.js，可以参考我的博客
+
+[教程参考](https://blog.csdn.net/Dan1374219106/article/details/108500324)
 
 ```
 npm install treer -g
