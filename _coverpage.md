@@ -3,9 +3,9 @@
 </p>
 <h1 align="center">mailStudyFile</h1>
 
-[搭建教程](https://docsify.js.org/#/zh-cn/quickstart)
-
 [GitHub](https://github.com/IsMrChen/Mall-StudyFile)
 
 [开始阅读](https://jongcychen.gitee.io/mall-studyfile/#/README)
+
+
 
