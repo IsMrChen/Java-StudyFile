@@ -85,7 +85,6 @@ Spring支持使用`@AspectJ`注释样式方法和基于模式的方法来实现�
 <bean id="aBean" class="...">
 ...
 </bean>
-XML
 ```
 
 以下示例定义了一个名为“`businessService`”的切入点，该切入点将匹配`com.yiibai`包中`Student`类中的`getName()`方法的执行：
@@ -420,6 +419,125 @@ public class MainApp {
 
 ![AOP3](img\AOP3.png)
 
+看了实例以后，我们接下来具体了解基于XML代码中的一些重点概念：
+
+#### 1. 基于XML的切入点
+
+切入点(JoinPoint)代表示您的应用程序中可以插入AOP方面的某个点。 您也可以说，这是应用程序中使用**Spring AOP**框架执行操作的实际位置。 请考虑以下示例：
+
+- 包中包含的所有方法类。
+- 一个类的特定方法。
+
+<a style="background:yellow">切入点</a>
+
+切入点(`PointCut`)是一组一个或多个连接点，其中它用来执行通知。可以使用表达式或模式指定切入点，我们将在下面AOP示例中看到。 在Spring，切入点有助于使用特定的连接点来应用通知。 请考虑以下示例：
+
+- `expression="execution(* com.aop.xml.*.*(..))"`
+- `expression="execution(* com.aop.xml.Student.getName(..))"`
+
+<a style="background:yellow">语法</a>
+
+```xml
+   <aop:config>
+       <aop:aspect id="log" ref="adviceClass">
+          <aop:pointcut id="pointcut-id" expression="execution( expression )"/>    
+       </aop:aspect>
+   </aop:config>
+```
+
+在上面语法中 -
+
+- `adviceClass` - 关联(ref)的类包含通知方法。
+- `pointcut-id` - 切入点的`ID`。
+- `execution( expression)` - 涵盖应用通知的方法的表达式。
+
+#### 2.基于XML的Before Advice、After Advice
+
+`Before`和`After`是一种通知类型，可以确保在方法执行前运行通知,以下是`Before`的通知语法：
+
+<a style="background:yellow">语法</a>
+
+```xml
+   <aop:config>
+   <aop:aspect id="log" ref="logging">
+      <aop:pointcut id="pointcut-id" expression="execution( expression )"/>    
+      <aop:before pointcut-ref="pointcut-id" method="methodName"/>
+   </aop:aspect>
+   </aop:config>
+```
+
+在上面配置中
+
+- `pointcut-id` - 切入点的id。
+- `methodName` - 在调用函数之前调用的函数的方法名称。
+
+同理`After`的通知语法也一样
+
+```xml
+ <aop:config>
+   <aop:aspect id="log" ref="logging">
+      <aop:pointcut id="pointcut-id" expression="execution( expression )"/>    
+      <aop:after pointcut-ref="pointcut-id" method="methodName"/>
+   </aop:aspect>
+   </aop:config>
+```
+
+#### 3.基于XML的After Returning Advice
+
+<a style="background:yellow">语法</a>
+
+```xml
+  <aop:config>
+   <aop:aspect id="log" ref="logging">
+      <aop:pointcut id="pointcut-id" expression="execution( expression )"/>    
+      <aop:after-returning pointcut-ref="pointcut-id" returning="retVal" method="methodName"/>
+   </aop:aspect>
+   </aop:config>
+```
+
+- `returning`的值是返回的参数
+
+#### 4.基于XML的After Throwing Advice
+
+<a style="background:yellow">语法</a>
+
+```sql
+<aop:config>
+   <aop:aspect id="log" ref="logging">
+      <aop:pointcut id="pointcut-id" expression="execution( expression )"/>    
+      <aop:after-throwing pointcut-ref="pointcut-id" throwing="ex" method="methodName"/>
+   </aop:aspect>
+   </aop:config>
+SQL
+```
+
+在上面配置中，
+
+- `pointcut-id` - 切入点的id
+- `ex` - 要被抛出的异常
+- `methodName` - 在调用函数之前调用的函数的方法名称
+
+#### 5.基于XML的Around Advice
+
+`Around`是一种通知类型，可以确保**方法执行前后的通知运行**。 以下是`Around`通知的语法：
+
+<a style="background:yellow">语法</a>
+
+```sql
+   <aop:config>
+   <aop:aspect id="log" ref="logging">
+      <aop:pointcut id="pointcut-id" expression="execution( expression )"/>    
+      <aop:around pointcut-ref="pointcut-id" method="methodName"/>
+   </aop:aspect>
+   </aop:config>
+SQL
+```
+
+在上面配置中，
+
+- `pointcut-id` - 切入点的id
+- `methodName` - 在调用函数之前调用的函数的方法名称
+
 ### 2）基于注解的实现
 
 项目结构：
@@ -428,7 +546,7 @@ public class MainApp {
 
 **LoggingAspect.java**
 
-这里相比注解，去除了异常抛出、参数返回的切面方法，原因是xml方式和注解方式还是有些区别的，将在第五大节具体阐述
+这里相比注解，<a style="color:red">去除了异常抛出、参数返回的切面方法</a>，原因是xml方式和注解方式还是有些区别的，将在第五大节具体阐述
 
 ```java
 package com.aop.aspectJ;
@@ -511,3 +629,315 @@ public class MainApp {
 运行结果：
 
 ![AOP4](img\AOP4.png)
+
+看了实例以后，我们接下来具体了解基于注解代码中的一些重点概念：
+
+#### 1.基于注解的切入点
+
+连接点(`JoinPoint`)代表您的应用程序中可以插入AOP方面的一个点/位置。 您也可以说，这是应用程序中使用Spring AOP框架执行操作的实际位置。 请考虑以下示例：
+
+- 包中包含的所有方法类。
+- 一个类的特定方法。
+
+切入点(`PointCut`)是一组一个或多个连接点，在其中应该执行的通知。 您可以使用表达式或模式指定切入点，我们将在AOP示例中看到。 在Spring中切入点有助于使用特定的连接点来应用通知。 请考虑以下示例：
+
+- `@Pointcut("execution(* com.aop.aspectJ.*.*(..))")`
+- `@Pointcut("execution(* com.aop.aspectJ.Student.getName(..))")`
+
+<a style="background:yellow">语法</a>
+
+```java
+@Aspect
+public class Logging {
+
+   @Pointcut("execution(* com.aop.aspectJ.*.*(..))")
+   private void selectAll(){}
+
+}
+```
+
+在上面的语法示例中 
+
+- `@Aspect` - 将类标记为包含通知方法的类
+- `@Pointcut` - 将函数标记为切入点
+- `execution( expression )` - 涵盖应用通知的方法的表达式
+
+#### 2.基于注解的Before Advice、After Advice
+
+`@Before`是一种通知类型，可以确保在方法执行之前运行通知。 以下是`@Before`通知(`advice`)的语法：
+
+<a style="background:yellow">语法</a>
+
+```java
+@Pointcut("execution(* com.aop.aspectJ.*.*(..))")
+private void selectAll(){}
+
+@Before("selectAll()")
+public void beforeAdvice(){
+   System.out.println("【方法调用前日志】");
+}
+```
+
+在上面的语法示例中 -
+
+- `@Pointcut` - 将函数标记为切入点
+- `@Before` - 将函数标记为在切入点覆盖的方法之前执行的通知。
+- `execution( expression )` - 涵盖应用通知的方法的表达式。
+
+同理`After`的通知语法也一样
+
+```java
+@After("selectAll()")
+    public void afterAdvice(){
+      System.out.println("【方法调用后日志】");
+}
+```
+
+#### 3.基于注解的After Returning Advice
+
+`@AfterReturning`是一种通知类型，可确保方法执行成功后运行通知。 以下是`@AfterReturning`通知的语法：
+
+<a style="background:yellow">语法</a>
+
+```java
+@AfterReturning(value = "selectAll()",returning="retVal")
+public void afterReturningAdvice(JoinPoint jp,Object retVal){
+    System.out.println("afterReturningAdvice【方法名】："+jp.getSignature());
+    System.out.println("afterReturningAdvice【参数返回日志】Returning:  " + retVal.toString() );
+}
+```
+
+在上面的语法示例中 
+
+- `@AfterReturning` - 如果方法返回成功，则将函数标记为在切入点覆盖的方法之前执行的通知。
+- `@Pointcut` - 将函数标记为切入点
+- `@After` - 将函数标记为在切入点覆盖的方法之后执行的通知。
+- `execution( expression )` - 涵盖应用通知的方法的表达式。
+- `returning` - 要返回的变量的名称。
+
+运行结果：可以看到，这个afterReturning是在方法调用之后会得到一些信息，包括参数名，参数等等信息
+
+![AOP5](img\AOP5.png)
+
+#### 4.基于注解的AfterThrowing
+
+`@AfterThrowing`是一种通知类型，可以确保在方法抛出异常时运行一个通知。 以下是`@AfterThrowing`通知的语法：
+
+**语法**
+
+```java
+@AfterThrowing(pointcut="execution(* com.aop.aspectJ.Student.*(..))", throwing= "error")
+public void afterThrowingAdvice(JoinPoint jp, Throwable error){
+   System.out.println("afterThrowingAdvice【方法名】："  + jp.getSignature());  
+   System.out.println("afterThrowingAdvice Exception: "+error);  
+}
+
+//另外一种写法：
+@AfterThrowing(value="selectAll()", throwing= "error")
+public void afterThrowingAdvice(JoinPoint jp, Throwable error){
+   System.out.println("afterThrowingAdvice【方法名】："  + jp.getSignature());  
+   System.out.println("afterThrowingAdvice Exception: "+error);  
+}
+```
+
+在上面的语法示例中 -
+
+- `@AfterReturning` - 如果方法返回成功，则将函数标记为在切入点覆盖的方法之前执行的通知
+- `@Pointcut` - 将函数标记为切入点
+- `@After` - 将函数标记为在切入点覆盖的方法之后执行的通知
+- `execution( expression )` - 涵盖应用通知的方法的表达式
+- `throwing` - 返回的异常名称
+- 如果和前面的涵盖应用通知的方法一样，就可以直接用value ，它的值表示某切入点的方法名
+
+运行结果：可以看到它可以获取到抛异常的方法名，以及异常信息
+
+![AOP6](img\AOP6.png)
+
+#### 5.基于注解的Around通知
+
+`@Around`是一种建议类型，可确保方法执行前后的通知可以运行。 以下是`@Around`通知的语法：
+
+**语法**
+
+```java
+@Around(value = "selectAll()")
+public void aroundServiceMethodExecution( ProceedingJoinPoint pjp) throws Throwable{
+    System.out.println("1-------------");
+    Object result=pjp.proceed();
+    System.out.println("result  "+result);
+    System.out.println("2-------------");
+}
+```
+
+在上面的语法示例中 -
+
+- `@Pointcut` - 将函数标记为切入点
+- `execution( expression )` - 涵盖应用通知的方法的表达式。
+- `@Around` - 将函数标记为在切入点覆盖的方法之前执行的通知。
+
+运行结果：可以看到Around是环绕在一个方法调用的前后，以`Object result=pjp.proceed();`的调用作为分界
+
+![AOP7](img\AOP7.png)
+
+## 五、Spring AOP高级部分
+
+### 1）Spring AOP代理
+
+到目前为止，我们学习过如何使用`<aop:config>`或`<aop:aspectj-autoproxy>`声明切面
+
+也可以通过编程方式创建代理，并使用代理对象以编程方式调用切面
+
+**语法**
+
+```java
+Student student = new Student();
+AspectJProxyFactory proxyFactory = new AspectJProxyFactory(student);
+proxyFactory.addAspect(LoggingAspect.class);
+Student proxyStudent = proxyFactory.getProxy();
+//Invoke the proxied method.
+proxyStudent.getAge();
+```
+
+在上面的语法示例中 
+
+- `AspectJProxyFactory` - 用于创建代理对象的工厂类
+- `Logging.class` - 包含通知的方面类
+- `Student` - 将被通知的业务类
+
+代码：
+
+与基于注解形式的代码主要区别在启动类，和xml文件
+
+**MainApp.java**
+
+```java
+package com.aop;
+
+import com.aop.aspectJ.LoggingAspect;
+import com.aop.aspectJ.Student;
+import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class MainApp {
+    public static void main(String[] args) {
+       ApplicationContext context =
+                new ClassPathXmlApplicationContext("Beans-aspectj.xml");
+
+        Student student = (Student) context.getBean("student_aspectj");
+        //创建一个代理工厂
+        AspectJProxyFactory proxyFactory = new AspectJProxyFactory(student);
+        //加入一个切面类到这个工厂
+        proxyFactory.addAspect(LoggingAspect.class);
+        //新建一个学生类的代理对象
+        Student proxyStudent = proxyFactory.getProxy();
+        //调用这个代理对象的方法
+        proxyStudent.getAge();
+    }
+}
+```
+
+**Beans-aspectj.xml**
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/aop/spring-aop-3.0.xsd ">
+
+<!--    <aop:aspectj-autoproxy/>-->
+
+    <!-- Definition for student bean -->
+    <bean id="student_aspectj" class="com.aop.aspectJ.Student">
+        <property name="name"  value="Test" />
+        <property name="age"  value="25"/>
+    </bean>
+
+    <!-- Definition for logging aspect -->
+    <bean id="logging" class="com.aop.aspectJ.LoggingAspect"/>
+
+</beans>
+```
+
+运行结果：
+
+![AOP8](img\AOP8.png)
+
+### 2）Spring AOP自定义注解
+
+根据切入点表达式可能会将它们应用到其他不需要通知的其他`bean`。 例如，考虑以下表达式：
+
+```java
+execution(* com.aop.aspectJ.*.getAge(..))
+```
+
+如果一个新的spring bean添加了`getAge()`方法，并且通知将开始应用到它，尽管它可能不需要应用通知
+
+要实现不需要它，我们可以创建一个自定义注解并注解要应用到通知的方法
+
+```java
+@Before("@annotation(com.aop.aspectJ.Loggable)")
+```
+
+实例：
+
+代码结构：
+
+![AOP9](img\AOP9.png)
+
+**Loggable.java**
+
+```java
+package com.aop.aspectJ;
+
+/**
+ * 自定义注解
+ */
+public @interface Loggable {
+}
+```
+
+**Student.java**
+
+我们在需要通知的方法上添加了我们自定义的注解`@Loggable`
+
+```java
+package com.aop.aspectJ;
+
+public class Student {
+    private String name;
+    private Integer age;
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    @Loggable
+    public Integer getAge() {
+        System.out.println("Age : " + age );
+        return age;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        System.out.println("Name : " + name );
+        return name;
+    }
+    public void printThrowException(){
+        System.out.println("Exception raised");
+        throw new IllegalArgumentException();
+    }
+}
+```
+
+其他部分同Spring AOP代理的代码即可
+
+运行结果：
+
+![AOP10](img\AOP10.png)
