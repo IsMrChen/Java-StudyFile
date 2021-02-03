@@ -149,13 +149,12 @@ XML
 
 可以对不同的通知使用相同`doRequiredTask`或不同的方法。 这些方法将被定义为方面模块的一部分。
 
-### 2）基于[@AspectJ](https://github.com/AspectJ)
+### 2）基于@AspectJ
 
 `@AspectJ`是指将Java方法注释为Java 5注释的常规Java类的方式。 `@AspectJ`是指将Java方法注释为Java 5注释的常规Java类的方式。通过在基于XML Schema的配置文件中包含以下元素来启用`@AspectJ`支持。
 
 ```xml
 <aop:aspectj-autoproxy/>
-XML
 ```
 
 #### 声明一个方面(aspect)
