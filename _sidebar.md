@@ -7,7 +7,5 @@
 - [MyBatis](docs/projectFile/MyBatis/mybatis批量更新数据三种方法效率对比)
 - [markdown如何写出项目目录结构](docs/projectFile/技能/markdown如何写出项目目录结构)
 - [常用地址链接集合](docs/projectFile/常用地址链接集合)
-- git常用命令集合
-  - [git合并分支代码](docs/projectFile/git常用命令集合/合并分支代码)
-  - [git查看和修改用户名密码](docs/projectFile/git常用命令集合/git设置用户名密码)
+- [git常用命令集合](docs/projectFile/git常用命令集合/git常用命令集合)
 
