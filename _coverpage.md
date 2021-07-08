@@ -5,7 +5,7 @@
 
 [GitHub](https://github.com/IsMrChen/Mall-StudyFile)
 
-[开始阅读](https://jongcychen.gitee.io/mall-studyfile/#/README)
+[开始阅读](http://localhost:3000/#/README)
 
 
 

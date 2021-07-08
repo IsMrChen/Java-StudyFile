@@ -1,9 +1,7 @@
 <p align="center">
 <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2481424715,2807309609&fm=26&gp=0.jpg" width="220" height="200"/>
 </p>
-<h1 align="center">MailStudyFile</h1>
-
-用于记录学习 macro的开源项目过程中的笔记和思考
+<h1 align="center">Java-StudyFile</h1>
 
 学习项目：
 
@@ -13,15 +11,21 @@
 
 本文档地址链接：
 
-[https://ismrchen.github.io/Mall-StudyFile/](https://ismrchen.github.io/Mall-StudyFile/)
+[https://ismrchen.github.io/Java-StudyFile/](https://ismrchen.github.io/Java-StudyFile/)
 
 推荐使用码云地址(访问速度更快)：
 
-[https://jongcychen.gitee.io/mall-studyfile](https://jongcychen.gitee.io/mall-studyfile)
+[https://jongcychen.gitee.io/Java-studyfile](https://jongcychen.gitee.io/mall-studyfile)
 
 如何搭建？
 
 [搭建教程](https://blog.csdn.net/qq_34337272/article/details/105511189)        [官网](https://docsify.js.org/#/zh-cn/quickstart)
+
+本地启动：进入根目录下，cmd输入：
+
+```
+docsify serve ./
+```
 
 <h3>关于我</h3>
 
