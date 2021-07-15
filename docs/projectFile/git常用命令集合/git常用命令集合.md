@@ -1,4 +1,4 @@
-## 合并分支代码
+## 1. 合并分支代码
 
 **合并步骤：**
 
@@ -69,7 +69,7 @@ git merge develop --allow-unrelated-histories
 
 
 
-## 设置用户名和密码
+## 2. 设置用户名和密码
 
 **查看用户名和邮箱地址：**
 
@@ -89,7 +89,7 @@ git config --global user.name "username"
 git config --global user.email "email@xxx.com"
 ```
 
-## 拉取分支并提交到远程新分支
+## 3. 拉取分支并提交到远程新分支
 
 1、问题描述：用git管理代码的时，有些情况不希望改动主分支的代码，那么这时就需要创建一个分支来改动代码，也就是老大常说的你从master分支上拉一个，然后提交到你自己的新分支一般会这样命名：master_yourname或者master_需求
 
@@ -99,9 +99,28 @@ git config --global user.email "email@xxx.com"
 - 在本地创建一个分支，名字叫learn，指令是：`git branch learn` ;
 - 当修改完代码后，提交到test分支的指令：`git push orign learn:test`
 
-## git如何删除远程分支
+## 4. git如何删除远程分支
 
 git push origin :远程分支名
 
 origin后面有空格，相当于推送一个空的分支
 
+## 5. git合并时遇到冲突或错误后取消合并
+
+当合并分支时遇到错误或者冲突，分支旁边会多出“|MERGING”这个东西
+
+![img](https://gitee.com/JongcyChen/PicBed/raw/master/img/a60d7777d92ea6726750c214327188ed.png)
+
+有这个状态存在时，会导致后面想要再合并的时候提示如下
+
+![img](https://gitee.com/JongcyChen/PicBed/raw/master/img/d7cdb9830d9d50a75b5257273e9eba7d.png)
+
+所以需要先取消这次合并，使用“git merge --abort”命令
+
+```
+git merge --abort
+```
+
+
+
+![img](https://gitee.com/JongcyChen/PicBed/raw/master/img/7cfa9491053ce24ad574d0a1687f0845.png)
