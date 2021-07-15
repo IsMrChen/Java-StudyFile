@@ -15,7 +15,7 @@
 
 推荐使用码云地址(访问速度更快)：
 
-[https://jongcychen.gitee.io/Java-studyfile](https://jongcychen.gitee.io/mall-studyfile)
+[https://jongcychen.gitee.io/Java-Studyfile](https://jongcychen.gitee.io/Java-Studyfile)
 
 如何搭建？
 
