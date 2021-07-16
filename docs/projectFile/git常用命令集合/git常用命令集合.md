@@ -124,3 +124,29 @@ git merge --abort
 
 
 ![img](https://gitee.com/JongcyChen/PicBed/raw/master/img/7cfa9491053ce24ad574d0a1687f0845.png)
+
+## 6.防止pull代码覆盖修改  采用 Stash暂存
+
+今天pull的时候出现这个提示。
+
+```
+Your local changes would be overwritten by merge.
+Commit, stash or revert them to proceed.
+```
+
+显示。如果Pull 成功会把我修改的代码覆盖
+
+所以按照提示通过idea处理
+第一步:储存我自己的修改内容:
+
+![在这里插入图片描述](https://gitee.com/JongcyChen/PicBed/raw/master/img/2020100923003524.png)
+
+先把 我们的修改 Stash 存储起来，操作完了会发现项目是修改前的
+第二步：Pull
+![在这里插入图片描述](https://gitee.com/JongcyChen/PicBed/raw/master/img/20201009230405500.png)
+更新完成以后
+第三步：取出我们的修改然后合并、提交。
+
+![image-20210716094734923](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210716094734923.png)
+
+![image-20210716094801427](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210716094801427.png)
