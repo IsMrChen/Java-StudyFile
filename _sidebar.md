@@ -1,4 +1,5 @@
 * [首页](README)
+* [重学Java设计模式😀](docs/projectFile/Java设计模式/Java设计模式)
 
 - [<font color=green>SpringBoot</font>](docs/projectFile/SpringBoot/1-快速开始)
 - Spring

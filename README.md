@@ -31,6 +31,8 @@ docsify serve ./
 
 [我的博客](https://blog.csdn.net/Dan1374219106)
 
+[我的知识星球：松鼠的小窝](https://wx.zsxq.com/dweb2/index/group/48412145241488)
+
 我的公众号：
 
 <p align="center">
