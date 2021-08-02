@@ -107,13 +107,106 @@ public enum ShapeEnum {
 
 ### 二、抽象工厂模式（<font color=red>Abstract Factory Pattern</font>）
 
-看到抽象工厂模式，我会想到抽象工厂模式是不是用到了abstract，抽象工厂和工厂模式之间有什么异同等等问题
+看到抽象工厂模式，我会想到抽象工厂模式是不是用到了abstract（如果你忘记了abstract的知识点，没关系我有[传送门](https://blog.csdn.net/pipizhen_/article/details/107207938)！），抽象工厂和工厂模式之间有什么异同等等问题
 
-实际上工厂是创建不同的商品的，一个形状工厂可以创建出圆形、正方形、椭圆形等等它本质上是一个工厂生产同类型的产品，而抽象工厂就是可以产生不同的工厂，你可以有形状工厂、颜色工厂等等。
+我们知道工厂是创建不同的商品的，一个形状工厂可以创建出圆形、正方形、椭圆形等等它本质上是一个工厂生产同类型的产品，而抽象工厂就是可以产生不同的工厂，你可以有形状工厂、颜色工厂等等。
 
 我的理解是抽象工厂是对工厂的再封装，相当于在工厂模式的基础上的升级版本吧
 
 我们还是先用[菜鸟教程](https://www.runoob.com/design-pattern/abstract-factory-pattern.html)的示例来理解这个概念，然后再去看小傅哥的示例
 
+![抽象工厂模式的 UML 图](https://gitee.com/JongcyChen/PicBed/raw/master/img/3E13CDD1-2CD2-4C66-BD33-DECBF172AE03.jpg)
 
+我们从`Shape`接口开始看，它依旧是可以画出三个形状，`ShapeFactory`就是我们的形状工厂
+
+```java
+//工厂模式：形状工厂
+public class ShapeFactory {
+   //使用 getShape 方法获取形状类型的对象
+   public Shape getShape(String shapeType){
+      if(shapeType == null){
+         return null;
+      }        
+      if(shapeType.equalsIgnoreCase("CIRCLE")){
+         return new Circle();
+      } else if(shapeType.equalsIgnoreCase("RECTANGLE")){
+         return new Rectangle();
+      } else if(shapeType.equalsIgnoreCase("SQUARE")){
+         return new Square();
+      }
+      return null;
+   }
+}
+```
+
+不同的是，它不仅有形状工厂，现在还加了颜色工厂，那么它们两个是怎么联系起来呢？就跟套娃一样，我再创建一个类，把这两个工厂的getShape和getColor给拿过来呗，我通过知道你想要颜色还是形状，要啥颜色啥形状，然后给你new对象就行啦!
+
+下图就是创建的一个抽象工厂
+
+```java
+public abstract class AbstractFactory {
+   public abstract Color getColor(String color);
+   public abstract Shape getShape(String shape) ;
+}
+```
+
+不同于工厂模式的是，我们的工厂需要继承我们定义好的抽象工厂，实现对应的方法：
+
+```java
+//抽象工厂：形状工厂
+public class ShapeFactory extends AbstractFactory {
+    
+   @Override
+   public Shape getShape(String shapeType){
+      if(shapeType == null){
+         return null;
+      }        
+      if(shapeType.equalsIgnoreCase("CIRCLE")){
+         return new Circle();
+      } else if(shapeType.equalsIgnoreCase("RECTANGLE")){
+         return new Rectangle();
+      } else if(shapeType.equalsIgnoreCase("SQUARE")){
+         return new Square();
+      }
+      return null;
+   }
+   
+   @Override
+   public Color getColor(String color) {
+      return null;
+   }
+}
+```
+
+**优点：** 
+
+1、一个调用者想创建一个对象，只要知道其名称就可以了。
+
+ 2、扩展性高，如果想增加一个产品，只要扩展一个工厂类就可以。
+
+ 3、屏蔽产品具体实现，调用者只关心产品的接口。
+
+**缺点：**每次增加一个产品时，都需要增加一个具体类和对象实现工厂，使得系统中类的个数成倍增加，在一定程度上增加了系统的复杂度，同时也增加了系统具体类的依赖。咱们可以小小算一下，如果现在在原有基础上，我不仅想要生产形状和颜色，我还想生产花纹，那么至少要增加三个类。那可想而知如果有十个产品就很多了....
+
+那么抽象工厂具体的适用场景到底是什么呢？
+
+小傅哥在文章中写下了言简意赅的一段话：
+
+> 抽象工厂模式，所要解决的问题就是在一个产品族，存在多个不同类型的产品（Redis集群、操作系统）情况下，接口选择问题。而这种场景在业务开发中也是非常多见的，只不过可能有时候没有将它们抽象化出来。
+
+<font color=red>待补充！</font>
+
+### 三、创建者模式（<font color=red>Builder Pattern</font>）
+
+**建造者模式（Builder Pattern）**使用多个简单的对象一步一步构建成一个复杂的对象。这种类型的设计模式属于创建型模式，它提供了一种创建对象的最佳方式。
+
+一个 Builder 类会一步一步构造最终的对象。该 Builder 类是独立于其他对象的
+
+应用实例：
+
+ 1、去肯德基，汉堡、可乐、薯条、炸鸡翅等是不变的，而其组合是经常变化的，生成出所谓的"套餐"。 
+
+ 2、JAVA 中的 StringBuilder。
+
+3、房屋的装修，装修步骤是一样的，但是装修过程中选择不同的组合会有不同的风格。
 
