@@ -194,6 +194,194 @@ public class ShapeFactory extends AbstractFactory {
 
 > 抽象工厂模式，所要解决的问题就是在一个产品族，存在多个不同类型的产品（Redis集群、操作系统）情况下，接口选择问题。而这种场景在业务开发中也是非常多见的，只不过可能有时候没有将它们抽象化出来。
 
+书中的实例是**Redis**
+
+![image-20210802203410563](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210802203410563.png)
+
+随着业务超过预期快速发展，系统的负载能力也要随之更上，那么原有的单机Redis已经满足不了系统的需求。这个时候就需要更换为更为健壮的Redis集群服务，虽然需要修改但是不能影响目前系统的运行，还要平滑的过渡过去。
+
+首先模拟了单机的Redis活动：
+
+ **RedisUtils:**
+
+模拟Redis功能，也就是假定目前所有的系统都在使用服务，类和方法名次都固定写死到各个业务系统中，改动略微麻烦
+
+代码结构：
+
+![image-20210802231315828](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210802231315828.png)
+
+```java
+public class RedisUtils {
+    private Logger logger = LoggerFactory.getLogger(RedisUtils.class);
+
+    private Map<String, String> dataMap = new ConcurrentHashMap<String, String>();
+
+    public String get(String key) {
+        logger.info("Redis获取数据 key：{}", key);
+        return dataMap.get(key);
+    }
+
+    public void set(String key, String value) {
+        logger.info("Redis写入数据 key：{} val：{}", key, value);
+        dataMap.put(key, value);
+    }
+
+    public void set(String key, String value, long timeout, TimeUnit timeUnit) {
+        logger.info("Redis写入数据 key：{} val：{} timeout：{} timeUnit：{}", key, value, timeout, timeUnit.toString());
+        dataMap.put(key, value);
+    }
+
+    public void del(String key) {
+        logger.info("Redis删除数据 key：{}", key);
+        dataMap.remove(key);
+    }
+}
+```
+
+模拟集群 **EGM**:
+
+```java
+public class EGM {
+
+    private Logger logger = LoggerFactory.getLogger(EGM.class);
+
+    private Map<String, String> dataMap = new ConcurrentHashMap<String, String>();
+
+    public String gain(String key) {
+        logger.info("EGM获取数据 key：{}", key);
+        return dataMap.get(key);
+    }
+
+    public void set(String key, String value) {
+        logger.info("EGM写入数据 key：{} val：{}", key, value);
+        dataMap.put(key, value);
+    }
+
+    public void setEx(String key, String value, long timeout, TimeUnit timeUnit) {
+        logger.info("EGM写入数据 key：{} val：{} timeout：{} timeUnit：{}", key, value, timeout, timeUnit.toString());
+        dataMap.put(key, value);
+    }
+
+    public void delete(String key) {
+        logger.info("EGM删除数据 key：{}", key);
+        dataMap.remove(key);
+    }
+}
+```
+
+会发现EGS有三个方法与RedisUtils不同：
+
+![image-20210802230237552](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210802230237552.png)
+
+再模拟集群 **IIR**：
+
+```java
+public class IIR {
+
+    private Logger logger = LoggerFactory.getLogger(IIR.class);
+
+    private Map<String, String> dataMap = new ConcurrentHashMap<String, String>();
+
+    public String get(String key) {
+        logger.info("IIR获取数据 key：{}", key);
+        return dataMap.get(key);
+    }
+
+    public void set(String key, String value) {
+        logger.info("IIR写入数据 key：{} val：{}", key, value);
+        dataMap.put(key, value);
+    }
+
+    public void setExpire(String key, String value, long timeout, TimeUnit timeUnit) {
+        logger.info("IIR写入数据 key：{} val：{} timeout：{} timeUnit：{}", key, value, timeout, timeUnit.toString());
+        dataMap.put(key, value);
+    }
+
+    public void del(String key) {
+        logger.info("IIR删除数据 key：{}", key);
+        dataMap.remove(key);
+    }
+
+}
+```
+
+同样也有一个方法与RedisUtils类中不一样：`setExpire()`
+
+综上可以看到，假设我们目前的系统中已经在大量的使用redis服务，但是因为系统不能满足业务的快速发展，因此需要迁移到集群服务中。而这时有两套集群服务需要兼容使用，又要满足所有业务系统的改造的同时不影响线上使用。
+
+如果没有学习过设计模式，着实让人比较头疼呀！
+
+那么小傅哥是怎么进行重构的呢？
+
+首先，没有if else不能解决的逻辑，不行咱们就套娃！！！[狗头]我们对接口进行了改造：
+
+
+
+![image-20210802231200310](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210802231200310.png)
+
+这种方式很好理解，就是根据传进来的集群类型调用对应的方法，但是显然这种方法不是长久之计，并且还特别的笨拙，别人阅读这样的代码，会觉得这个程序员不太聪明的丫子，实际上我觉得我们要对自己写的代码有一个良好的质疑心态，当你发现重复的代码反复出现的时候，很可能就是代码的设计不够合理，看是否可以抽象或者重构。
+
+```java
+public class CacheServiceImpl implements CacheService {
+    private RedisUtils redisUtils = new RedisUtils();
+    private EGM egm = new EGM();
+    private IIR iir = new IIR();
+    public String get(String key, int redisType) {
+
+        if (1 == redisType) {
+            return egm.gain(key);
+        }
+        if (2 == redisType) {
+            return iir.get(key);
+        }
+        return redisUtils.get(key);
+    }
+
+    public void set(String key, String value, int redisType) {
+
+        if (1 == redisType) {
+            egm.set(key, value);
+            return;
+        }
+        if (2 == redisType) {
+            iir.set(key, value);
+            return;
+        }
+        redisUtils.set(key, value);
+    }
+
+    public void set(String key, String value, long timeout, TimeUnit timeUnit, int redisType) {
+
+        if (1 == redisType) {
+            egm.setEx(key, value, timeout, timeUnit);
+            return;
+        }
+        if (2 == redisType) {
+            iir.setExpire(key, value, timeout, timeUnit);
+            return;
+        }
+        redisUtils.set(key, value, timeout, timeUnit);
+    }
+
+    public void del(String key, int redisType) {
+
+        if (1 == redisType) {
+            egm.delete(key);
+            return;
+        }
+        if (2 == redisType) {
+            iir.del(key);
+            return;
+        }
+        redisUtils.del(key);
+    }
+}
+```
+
+<font color=red>✔️用抽象⼯厂模式来重构代码</font>
+
+
+
 <font color=red>待补充！</font>
 
 ### 三、创建者模式（<font color=red>Builder Pattern</font>）
