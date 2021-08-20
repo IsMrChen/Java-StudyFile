@@ -380,11 +380,104 @@ public class CacheServiceImpl implements CacheService {
 
 <font color=red>✔️用抽象⼯厂模式来重构代码</font>
 
+抽象工厂模型结构
+
+![image-20210810194900536](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210810194900536.png)
+
+代码结构：
+
+![image-20210810195713754](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210810195713754.png)
+
+工程中涉及的部分核心功能代码：
+
+`ICacheAdapter`，定义了适配接口，分别包装两个集群中差异化的接口名称。`EGMCacheAdapter`、`IIRCacheAdapter`
+
+`JDKProxy`、`JDKInvocationHandler`，是代理类的定义和实现，这部分也就是抽象工厂的另外一种实现方式。通过这样的实现方式可以很好的把握原有操作Redis的方法进行代理操作，通过控制不同的入参对象，控制缓存的使用。
+
+**代码实现：**
+
+1）定义适配接⼝： 这个类的主要作用是让所有集群的提供方，能在统一的方法名称下面进行操作，并且也方便后续的拓展。
+
+```java
+public interface ICacheAdapter {
+
+    String get(String key);
+
+    void set(String key, String value);
+
+    void set(String key, String value, long timeout, TimeUnit timeUnit);
+
+    void del(String key);
+
+}
+
+```
+
+2）实现集群使⽤用服务：实现`ICacheAdapter`接口
+
+以`EGMCacheAdapter`为例
+
+```java
+public class EGMCacheAdapter implements ICacheAdapter {
+
+    private EGM egm = new EGM();
+
+    public String get(String key) {
+        return egm.gain(key);
+    }
+
+    public void set(String key, String value) {
+        egm.set(key, value);
+    }
+
+    public void set(String key, String value, long timeout, TimeUnit timeUnit) {
+        egm.setEx(key, value, timeout, timeUnit);
+    }
+
+    public void del(String key) {
+        egm.delete(key);
+    }
+}
+```
+
+3）定义抽象工厂代理类和实现：
+
+这里主要的作用是完成代理类，同时对于使用哪个集群由外部通过入参进行传递
+
+```java
+public class JDKProxy {
+
+    public static <T> T getProxy(Class<T> interfaceClass, ICacheAdapter cacheAdapter) throws Exception {
+        InvocationHandler handler = new JDKInvocationHandler(cacheAdapter);
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        Class<?>[] classes = interfaceClass.getInterfaces();
+        return (T) Proxy.newProxyInstance(classLoader, new Class[]{classes[0]}, handler);
+    }
+
+}
+```
+
+**JDKInvocationHandler**
+
+```java
+public class JDKInvocationHandler implements InvocationHandler {
+
+    private ICacheAdapter cacheAdapter;
+
+    public JDKInvocationHandler(ICacheAdapter cacheAdapter) {
+        this.cacheAdapter = cacheAdapter;
+    }
+
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        return ICacheAdapter.class.getMethod(method.getName(), ClassLoaderUtils.getClazzByArgs(args)).invoke(cacheAdapter, args);
+    }
+
+}
+```
 
 
-<font color=red>待补充！</font>
 
-### 三、创建者模式（<font color=red>Builder Pattern</font>）
+### 三、建造者模式（<font color=red>Builder Pattern</font>）
 
 **建造者模式（Builder Pattern）**使用多个简单的对象一步一步构建成一个复杂的对象。这种类型的设计模式属于创建型模式，它提供了一种创建对象的最佳方式。
 
@@ -397,4 +490,24 @@ public class CacheServiceImpl implements CacheService {
  2、JAVA 中的 StringBuilder。
 
 3、房屋的装修，装修步骤是一样的，但是装修过程中选择不同的组合会有不同的风格。
+
+![image-20210820165005713](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210820165005713.png)
+
+**建造者模式所完成的的内容就是通过将多个简单对象通过一步步的组装构建出一个复杂对象的过程。**
+
+### 四、原型模式（<font color=red>Prototype Pattern</font>）
+
+
+
+
+
+
+
+### 五、单例模式（<font color=red>Singleton Pattern</font>）
+
+
+
+
+
+## 结构型模式<font color=green>（7节）</font>
 
