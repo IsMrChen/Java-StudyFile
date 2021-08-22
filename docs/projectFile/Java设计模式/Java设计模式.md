@@ -495,7 +495,545 @@ public class JDKInvocationHandler implements InvocationHandler {
 
 **建造者模式所完成的的内容就是通过将多个简单对象通过一步步的组装构建出一个复杂对象的过程。**
 
+文章中有一段话我觉得将建造者模式讲的非常清楚：
+
+![image-20210821102131749](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210821102131749.png)
+
+**案例场景模拟：**
+
+我们模拟装修公司对于设计出一些套餐装修服务的场景。
+
+将装修步骤简化为以下四个。
+
+![image-20210821102625412](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210821102625412.png)
+
+很多装修公司都会给出自家的套餐服务，一般有：欧式豪华、轻奢田园、现代简约等等，而这些套餐的后面是不同商品的组合。
+
+例如吊顶有一级&二级；涂料有多乐士涂料；地板有圣像地板；马可波罗地砖等等，按照不同的套餐架构选取不同的品牌组合，最终再按照装修面积给出一个整理报价。
+
+这里我们就模拟装修公司想推出一些套餐装修服务，按照不同的价格设定品牌选择组合，以达到使用建造者模式的过程。
+
+![image-20210821111315739](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210821111315739.png)
+
+在模拟工程中提供了装修中所需要的物料如上图四项内容；
+
+**Matter**是物料接口，其他的物料均实现这个接口，以保证所有的装修材料都可以按照统一标准进行获取。
+
+```java
+/**
+ * 装修物料
+ */
+public interface Matter {
+
+    /**
+     * 场景；地板、地砖、涂料、吊顶
+     */
+    String scene();
+
+    /**
+     * 品牌
+     */
+    String brand();
+
+    /**
+     * 型号
+     */
+    String model();
+
+    /**
+     * 平米报价
+     */
+    BigDecimal price();
+
+    /**
+     * 描述
+     */
+    String desc();
+}
+```
+
+**吊顶Ceiling：**
+
+```java
+/**
+ * 吊顶
+ * 品牌；装修公司自带
+ * 型号：一级顶
+ */
+public class LevelOneCeiling implements Matter {
+
+    public String scene() {
+        return "吊顶";
+    }
+
+    public String brand() {
+        return "装修公司自带";
+    }
+
+    public String model() {
+        return "一级顶";
+    }
+
+    public BigDecimal price() {
+        return new BigDecimal(260);
+    }
+
+    public String desc() {
+        return "造型只做低一级，只有一个层次的吊顶，一般离顶120-150mm";
+    }
+
+}
+```
+
+**涂料(coat):**
+
+```java
+/**
+ * 涂料
+ * 品牌；多乐士(Dulux)
+ */
+public class DuluxCoat  implements Matter {
+
+    public String scene() {
+        return "涂料";
+    }
+
+    public String brand() {
+        return "多乐士(Dulux)";
+    }
+
+    public String model() {
+        return "第二代";
+    }
+
+    public BigDecimal price() {
+        return new BigDecimal(719);
+    }
+
+    public String desc() {
+        return "多乐士是阿克苏诺贝尔旗下的著名建筑装饰油漆品牌，产品畅销于全球100个国家，每年全球有5000万户家庭使用多乐士油漆。";
+    }
+    
+}
+```
+
+地板和地砖也是类似，这里就不再列出来了
+
+那么接下来要通过上面这个案例去使用不同的物料组合，组合出不同的套餐服务
+
+❌**用一坨坨代码实现**
+
+```java
+public class DecorationPackageController {
+
+    public String getMatterList(BigDecimal area, Integer level) {
+
+        List<Matter> list = new ArrayList<Matter>(); // 装修清单
+        BigDecimal price = BigDecimal.ZERO;          // 装修价格
+
+        // 豪华欧式
+        if (1 == level) {
+
+            LevelTwoCeiling levelTwoCeiling = new LevelTwoCeiling(); // 吊顶，二级顶
+            DuluxCoat duluxCoat = new DuluxCoat();                   // 涂料，多乐士
+            ShengXiangFloor shengXiangFloor = new ShengXiangFloor(); // 地板，圣象
+
+            list.add(levelTwoCeiling);
+            list.add(duluxCoat);
+            list.add(shengXiangFloor);
+
+            price = price.add(area.multiply(new BigDecimal("0.2")).multiply(levelTwoCeiling.price()));
+            price = price.add(area.multiply(new BigDecimal("1.4")).multiply(duluxCoat.price()));
+            price = price.add(area.multiply(shengXiangFloor.price()));
+
+        }
+
+        // 轻奢田园
+        if (2 == level) {
+
+            LevelTwoCeiling levelTwoCeiling = new LevelTwoCeiling(); // 吊顶，二级顶
+            LiBangCoat liBangCoat = new LiBangCoat();                // 涂料，立邦
+            MarcoPoloTile marcoPoloTile = new MarcoPoloTile();       // 地砖，马可波罗
+
+            list.add(levelTwoCeiling);
+            list.add(liBangCoat);
+            list.add(marcoPoloTile);
+
+            price = price.add(area.multiply(new BigDecimal("0.2")).multiply(levelTwoCeiling.price()));
+            price = price.add(area.multiply(new BigDecimal("1.4")).multiply(liBangCoat.price()));
+            price = price.add(area.multiply(marcoPoloTile.price()));
+
+        }
+
+        // 现代简约
+        if (3 == level) {
+
+            LevelOneCeiling levelOneCeiling = new LevelOneCeiling();  // 吊顶，二级顶
+            LiBangCoat liBangCoat = new LiBangCoat();                 // 涂料，立邦
+            DongPengTile dongPengTile = new DongPengTile();           // 地砖，东鹏
+
+            list.add(levelOneCeiling);
+            list.add(liBangCoat);
+            list.add(dongPengTile);
+
+            price = price.add(area.multiply(new BigDecimal("0.2")).multiply(levelOneCeiling.price()));
+            price = price.add(area.multiply(new BigDecimal("1.4")).multiply(liBangCoat.price()));
+            price = price.add(area.multiply(dongPengTile.price()));
+        }
+
+        StringBuilder detail = new StringBuilder("\r\n-------------------------------------------------------\r\n" +
+                "装修清单" + "\r\n" +
+                "套餐等级：" + level + "\r\n" +
+                "套餐价格：" + price.setScale(2, BigDecimal.ROUND_HALF_UP) + " 元\r\n" +
+                "房屋面积：" + area.doubleValue() + " 平米\r\n" +
+                "材料清单：\r\n");
+
+        for (Matter matter: list) {
+            detail.append(matter.scene()).append("：").append(matter.brand()).append("、").append(matter.model()).append("、平米价格：").append(matter.price()).append(" 元。\n");
+        }
+
+        return detail.toString();
+
+    }
+}
+```
+
+测试验证：
+
+```java
+public class ApiTest {
+
+    @Test
+    public void test_DecorationPackageController(){
+        DecorationPackageController decoration = new DecorationPackageController();
+
+        // 豪华欧式
+        System.out.println(decoration.getMatterList(new BigDecimal("132.52"),1));
+
+        // 轻奢田园
+        System.out.println(decoration.getMatterList(new BigDecimal("98.25"),2));
+
+        // 现代简约
+        System.out.println(decoration.getMatterList(new BigDecimal("85.43"),3));
+    }
+
+}
+```
+
+测试结果：
+
+```
+-------------------------------------------------------
+装修清单
+套餐等级：1
+套餐价格：198064.39 元
+房屋面积：132.52 平米
+材料清单：
+吊顶：装修公司自带、二级顶、平米价格：850 元。
+涂料：多乐士(Dulux)、第二代、平米价格：719 元。
+地板：圣象、一级、平米价格：318 元。
+
+-------------------------------------------------------
+装修清单
+套餐等级：2
+套餐价格：119865.00 元
+房屋面积：98.25 平米
+材料清单：
+吊顶：装修公司自带、二级顶、平米价格：850 元。
+涂料：立邦、默认级别、平米价格：650 元。
+地砖：马可波罗(MARCO POLO)、缺省、平米价格：140 元。
+
+-------------------------------------------------------
+装修清单
+套餐等级：3
+套餐价格：90897.52 元
+房屋面积：85.43 平米
+材料清单：
+吊顶：装修公司自带、一级顶、平米价格：260 元。
+涂料：立邦、默认级别、平米价格：650 元。
+地砖：东鹏瓷砖、10001、平米价格：102 元。
+```
+
+看到这个输出的结果，已经很有装修公司提供报价单的感觉了。以上是使用`ifelse`方式实现的代码，目前只是有三种装修风格，但是随着老板对业务的快速发展要求，会提供很多的套餐针对不同的户型。那么就得不停的在这个`getMatterList`方法中增加逻辑，于是这个方法会越来越大，越来越难以维护了。
+
+✔️**建造者模式重构代码**
+
+建造者模式主要解决的问题是在软件系统中，有时候面临着“一个复杂对象”的创建工作，其通常由各个部分的子对象用一定的过程构成；由于需要的变化，这个复杂对象的各个部分经常面临着重大的变化，但是将它们组合在一起的过程却相对稳定。
+
+这里我们会把构建的过程交给`创建者`类，而创建者通过使用我们的构建工具包，去构建出部门的"装修套餐"。
+
+**建造者的模型结构：**
+
+![image-20210822165427435](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210822165427435.png)
+
+**工程结构：**
+
+![image-20210822165932321](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210822165932321.png)
+
+`Builder`，建造者类具体的各种组装由此类实现
+
+`DecorationPackageMenu`是`IMenu`接口的实现类，主要是承载建造过程中的填充器。相当于这是一套承载物料和创建者中间的衔接内容。
+
+**`IMenu`**
+
+```java
+public interface IMenu {
+
+    /**
+     * 吊顶
+     */
+    IMenu appendCeiling(Matter matter);
+
+    /**
+     * 涂料
+     */
+    IMenu appendCoat(Matter matter);
+
+    /**
+     * 地板
+     */
+    IMenu appendFloor(Matter matter);
+
+    /**
+     * 地砖
+     */
+    IMenu appendTile(Matter matter);
+
+    /**
+     * 明细
+     */
+    String getDetail();
+
+}
+```
+
+**`DecorationPackageMenu`**
+
+```java
+/**
+ * 装修包
+ */
+public class DecorationPackageMenu implements IMenu {
+
+    private List<Matter> list = new ArrayList<Matter>();  // 装修清单
+    private BigDecimal price = BigDecimal.ZERO;      // 装修价格
+
+    private BigDecimal area;  // 面积
+    private String grade;     // 装修等级；豪华欧式、轻奢田园、现代简约
+
+    private DecorationPackageMenu() {
+    }
+
+    public DecorationPackageMenu(Double area, String grade) {
+        this.area = new BigDecimal(area);
+        this.grade = grade;
+    }
+
+    public IMenu appendCeiling(Matter matter) {
+        list.add(matter);
+        price = price.add(area.multiply(new BigDecimal("0.2")).multiply(matter.price()));
+        return this;
+    }
+
+    public IMenu appendCoat(Matter matter) {
+        list.add(matter);
+        price = price.add(area.multiply(new BigDecimal("1.4")).multiply(matter.price()));
+        return this;
+    }
+
+    public IMenu appendFloor(Matter matter) {
+        list.add(matter);
+        price = price.add(area.multiply(matter.price()));
+        return this;
+    }
+
+    public IMenu appendTile(Matter matter) {
+        list.add(matter);
+        price = price.add(area.multiply(matter.price()));
+        return this;
+    }
+
+    public String getDetail() {
+
+        StringBuilder detail = new StringBuilder("\r\n-------------------------------------------------------\r\n" +
+                "装修清单" + "\r\n" +
+                "套餐等级：" + grade + "\r\n" +
+                "套餐价格：" + price.setScale(2, BigDecimal.ROUND_HALF_UP) + " 元\r\n" +
+                "房屋面积：" + area.doubleValue() + " 平米\r\n" +
+                "材料清单：\r\n");
+
+        for (Matter matter: list) {
+            detail.append(matter.scene()).append("：").append(matter.brand()).append("、").append(matter.model()).append("、平米价格：").append(matter.price()).append(" 元。\n");
+        }
+
+        return detail.toString();
+    }
+
+}
+```
+
+**`Builder`**
+
+```java
+public class Builder {
+
+    public IMenu levelOne(Double area) {
+        return new DecorationPackageMenu(area, "豪华欧式")
+                .appendCeiling(new LevelTwoCeiling())    // 吊顶，二级顶
+                .appendCoat(new DuluxCoat())             // 涂料，多乐士
+                .appendFloor(new ShengXiangFloor());     // 地板，圣象
+    }
+
+    public IMenu levelTwo(Double area){
+        return new DecorationPackageMenu(area, "轻奢田园")
+                .appendCeiling(new LevelTwoCeiling())   // 吊顶，二级顶
+                .appendCoat(new LiBangCoat())           // 涂料，立邦
+                .appendTile(new MarcoPoloTile());       // 地砖，马可波罗
+    }
+
+    public IMenu levelThree(Double area){
+        return new DecorationPackageMenu(area, "现代简约")
+                .appendCeiling(new LevelOneCeiling())   // 吊顶，二级顶
+                .appendCoat(new LiBangCoat())           // 涂料，立邦
+                .appendTile(new DongPengTile());        // 地砖，东鹏
+    }
+
+}
+```
+
+`APITest`
+
+```java
+public class ApiTest {
+
+    @Test
+    public void test_Builder(){
+        Builder builder = new Builder();
+
+        // 豪华欧式
+        System.out.println(builder.levelOne(132.52D).getDetail());
+
+        // 轻奢田园
+        System.out.println(builder.levelTwo(98.25D).getDetail());
+
+        // 现代简约
+        System.out.println(builder.levelThree(85.43D).getDetail());
+    }
+
+}
+```
+
+测试结果是一样的，调用方式也基本类似。但是目前的代码结构却可以让你很方便很由条理的进行业务扩展开发。而不是以往一样把所有代码都写到`ifelse`里面。
+
+通过上面对建造者模式的使用，可以得出，**当一些基本物料不会变，而其组合经常变化的时候**，就可以采用这样的设计模式来构建代码。
+
+词设计模式满足了单一职责原则以及可复用的技术、建造者独立、易扩展、便于控制细节风险。但同时当出现特别多的物料以及很多的组合后，**类的不断扩展也会造成难以维护的问题**。但这种设计结构模型可以把重复的内容抽象到数据库中，按照需要配置。这样就可以减少代码中出现大量的重复。
+
 ### 四、原型模式（<font color=red>Prototype Pattern</font>）
+
+原型模式主要解决的问题就是创建重复对象，而这部分对象内容本身比较复杂，生产过程可能从库或者RPC接口中获取数据的耗时较长，因此采用克隆的方式节省时间。
+
+这种场景经常出现在我们身边，例如：
+
+1. `ctrl+C` 、`ctrl-V`复制粘贴
+2. Java多数类中提供的API方法；Object clone()
+3. 细胞的有丝分裂
+4. ......
+
+**案例场景模拟：**
+
+文章给出的例子是实现一个上机考试抽题的服务，因此在这里建造了一个题库题目的场景类ixnx，用于创建；包括选择题和问答题。
+
+![image-20210822211902185](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210822211902185.png)
+
+选择题：
+
+```java
+/**
+ * 单选题
+ */
+public class ChoiceQuestion {
+
+    private String name;                 // 题目
+    private Map<String, String> option;  // 选项；A、B、C、D
+    private String key;                  // 答案；B
+
+    public ChoiceQuestion() {
+    }
+
+    public ChoiceQuestion(String name, Map<String, String> option, String key) {
+        this.name = name;
+        this.option = option;
+        this.key = key;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Map<String, String> getOption() {
+        return option;
+    }
+
+    public void setOption(Map<String, String> option) {
+        this.option = option;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+}
+
+```
+
+填空题：
+
+```java
+/**
+ * 解答题
+ */
+public class AnswerQuestion {
+
+    private String name;  // 问题
+    private String key;   // 答案
+
+    public AnswerQuestion() {
+    }
+
+    public AnswerQuestion(String name, String key) {
+        this.name = name;
+        this.key = key;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+}
+```
+
+❌**用一坨坨代码实现**
+
+首先我们还是用`ifelse`来实现
 
 
 
