@@ -1994,3 +1994,504 @@ public class POPOrderAdapterServiceImpl implements OrderAdapterService {
 
 ### 二、桥接模式（<font color=red>Bridge Pattern</font>）
 
+桥接模式的主要作用就是通过将抽象部分与实现部分分离，把多种可匹配的使用进行组合。说白了核心实现也就是在A类中含有B类接口，通过构造函数传递B的实现，这个B类就是设计的桥。
+
+**那么这样的桥接模式，在我们平常的开发中有哪些场景**
+
+JDBC多种驱动程序的实现、同品牌类型的台式机和笔记本平板、业务实现中的多类接口同组过滤服务等。这些场景都比较合适使用桥接模式进行实现，因为在一些组合中，如果每一个类都实现不同的服务，可能会出现笛卡尔积，而使用桥接模式就可以非常简单。
+
+**案例场景模拟**
+
+![image-20210830222054521](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210830222054521.png)
+
+![image-20210830222135448](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210830222135448.png)
+
+❌**用一坨坨代码实现**
+
+只有一个类里面都是ifelse，这个类实现了支付和模式的全部功能。
+
+```java
+public class PayController {
+
+    private Logger logger = LoggerFactory.getLogger(PayController.class);
+
+    public boolean doPay(String uId, String tradeId, BigDecimal amount, int channelType, int modeType) {
+        // 微信支付
+        if (1 == channelType) {
+            logger.info("模拟微信渠道支付划账开始。uId：{} tradeId：{} amount：{}", uId, tradeId, amount);
+            if (1 == modeType) {
+                logger.info("密码支付，风控校验环境安全");
+            } else if (2 == modeType) {
+                logger.info("人脸支付，风控校验脸部识别");
+            } else if (3 == modeType) {
+                logger.info("指纹支付，风控校验指纹信息");
+            }
+        }
+        // 支付宝支付
+        else if (2 == channelType) {
+            logger.info("模拟支付宝渠道支付划账开始。uId：{} tradeId：{} amount：{}", uId, tradeId, amount);
+            if (1 == modeType) {
+                logger.info("密码支付，风控校验环境安全");
+            } else if (2 == modeType) {
+                logger.info("人脸支付，风控校验脸部识别");
+            } else if (3 == modeType) {
+                logger.info("指纹支付，风控校验指纹信息");
+            }
+        }
+        return true;
+    }
+
+}
+
+```
+
+上面的类提供了一个支付服务的功能，通过提供的必要字段；用户ID、交易ID、金额、渠道、模式来控制支付方式。
+
+以上的ifelse应该是最差的一种写法，即使写ifelse也是可以优化的方式去写的。
+
+测试：
+
+```java
+public class ApiTest {
+
+    @Test
+    public void test_pay() {
+        PayController pay = new PayController();
+
+        System.out.println("\r\n模拟测试场景；微信支付、人脸方式。");
+        pay.doPay("weixin_1092033111", "100000109893", new BigDecimal(100), 1, 2);
+        
+        System.out.println("\r\n模拟测试场景；支付宝支付、指纹方式。");
+        pay.doPay("jlu19dlxo111","100000109894",new BigDecimal(100), 2, 3);
+    }
+
+}
+```
+
+
+
+✔️**桥接模式重构代码**
+
+![image-20210830222729837](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210830222729837.png)
+
+桥接模式模型结构
+
+![image-20210830222758762](C:\Users\chendandan48\AppData\Roaming\Typora\typora-user-images\image-20210830222758762.png)
+
+![image-20210830222846134](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210830222846134.png)
+
+**代码实现**
+
+1）支付类型桥接抽象类
+
+```java
+public abstract class Pay {
+
+    protected Logger logger = LoggerFactory.getLogger(Pay.class);
+
+    protected IPayMode payMode;
+
+    public Pay(IPayMode payMode) {
+        this.payMode = payMode;
+    }
+
+    public abstract String transfer(String uId, String tradeId, BigDecimal amount);
+
+}
+```
+
+在这个类中定义了支付方式需要实现的划账接口：`transfer`，以及桥接接口：`IPayMode`，并在构造函数中用户方自行选择支付方式。
+
+如果没有接触过此类实现，可以重点关注`IPayMode payMode`，这部分是桥接模式的核心；
+
+2）两个支付类型的实现
+
+```java
+public class WxPay extends Pay {
+
+    public WxPay(IPayMode payMode) {
+        super(payMode);
+    }
+
+    public String transfer(String uId, String tradeId, BigDecimal amount) {
+        logger.info("模拟微信渠道支付划账开始。uId：{} tradeId：{} amount：{}", uId, tradeId, amount);
+        boolean security = payMode.security(uId);
+        logger.info("模拟微信渠道支付风控校验。uId：{} tradeId：{} security：{}", uId, tradeId, security);
+        if (!security) {
+            logger.info("模拟微信渠道支付划账拦截。uId：{} tradeId：{} amount：{}", uId, tradeId, amount);
+            return "0001";
+        }
+        logger.info("模拟微信渠道支付划账成功。uId：{} tradeId：{} amount：{}", uId, tradeId, amount);
+        return "0000";
+    }
+
+}
+```
+
+```java
+public class ZfbPay extends Pay {
+
+    public ZfbPay(IPayMode payMode) {
+        super(payMode);
+    }
+
+    public String transfer(String uId, String tradeId, BigDecimal amount) {
+        logger.info("模拟支付宝渠道支付划账开始。uId：{} tradeId：{} amount：{}", uId, tradeId, amount);
+        boolean security = payMode.security(uId);
+        logger.info("模拟支付宝渠道支付风控校验。uId：{} tradeId：{} security：{}", uId, tradeId, security);
+        if (!security) {
+            logger.info("模拟支付宝渠道支付划账拦截。uId：{} tradeId：{} amount：{}", uId, tradeId, amount);
+            return "0001";
+        }
+        logger.info("模拟支付宝渠道支付划账成功。uId：{} tradeId：{} amount：{}", uId, tradeId, amount);
+        return "0000";
+    }
+
+}
+```
+
+可以看到在支付的时候分别都调用了风控的接口进行验证，也就是不同模式的支付（刷脸、指纹）都需要过指定的风控，才能保证支付安全。
+
+3）定义支付模式的接口
+
+```java
+public interface IPayMode {
+
+    boolean security(String uId);
+
+}
+```
+
+任何一个支付模式，刷脸、指纹、密码，都会过不同程度的安全风控，这里定义一个安全校验接口。
+
+4）三种支付模式风控（刷脸、指纹、密码）
+
+```java
+public class PayFaceMode implements IPayMode{
+
+    protected Logger logger = LoggerFactory.getLogger(PayCypher.class);
+
+    public boolean security(String uId) {
+        logger.info("人脸支付，风控校验脸部识别");
+        return true;
+    }
+
+}
+
+public class PayFingerprintMode implements IPayMode{
+
+    protected Logger logger = LoggerFactory.getLogger(PayCypher.class);
+
+    public boolean security(String uId) {
+        logger.info("指纹支付，风控校验指纹信息");
+        return true;
+    }
+
+}
+
+public class PayCypher implements IPayMode{
+
+    protected Logger logger = LoggerFactory.getLogger(PayCypher.class);
+
+    public boolean security(String uId) {
+        logger.info("密码支付，风控校验环境安全");
+        return true;
+    }
+
+}
+```
+
+测试
+
+```java
+public class ApiTest {
+
+    @Test
+    public void test_pay() {
+
+        System.out.println("\r\n模拟测试场景；微信支付、人脸方式。");
+        Pay wxPay = new WxPay(new PayFaceMode());
+        wxPay.transfer("weixin_1092033111", "100000109893", new BigDecimal(100));
+
+        System.out.println("\r\n模拟测试场景；支付宝支付、指纹方式。");
+        Pay zfbPay = new ZfbPay(new PayFingerprintMode());
+        zfbPay.transfer("jlu19dlxo111","100000109894",new BigDecimal(100));
+
+    }
+
+}
+```
+
+![image-20210830224040371](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210830224040371.png)
+
+**总结**
+
+![image-20210830224109743](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210830224109743.png)
+
+### 三、组合模式（<font color=red>Composite Pattern</font>）
+
+作者在这段文字中，真的讲到了我的痛点啊！我现阶段就是以实现为主，而并没有思考过整体！
+
+![image-20210830230541797](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210830230541797.png)
+
+**通过把相似对象（也可以称作是方法）组合成一组可以被调用的结构树对象的设计思路叫做组合模式。**
+
+这种设计方式可以让你的服务组节点进行自由组合对外提供服务，假如你有三个原子校验功能（A：身份证、B：银行卡、C：手机号）服务并对外提供使用。有些调用方需要使用AB组合，有些调用方需要使用到CBA组合，还有一些可能只使用三者中的一个。那么这个时候你就可以使用组合模式进行构建服务，对于不同类型的调用方配置不同的组织关系树，而这个树结构你可以配置到数据库中也可以不断的通过图形界面来控制树结构。
+
+所以不同的设计模式用在恰当好处的场景可以让代码逻辑非常清晰并易于扩展，同时也可以减少团队新增人员对项目的学习成本。
+
+**案例场景模拟**
+
+![image-20210830231235692](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210830231235692.png)
+
+以上是一个非常简化版的营销规则决策树，根据性别、年龄来发放不同类型的优惠券，来刺激消费起到精准用户促销的目的。
+
+![image-20210830231501148](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210830231501148.png)
+
+❌**用一坨坨代码实现**
+
+```java
+public class EngineController {
+
+    private Logger logger = LoggerFactory.getLogger(EngineController.class);
+
+    public String process(final String userId, final String userSex, final int userAge) {
+
+        logger.info("ifelse实现方式判断用户结果。userId：{} userSex：{} userAge：{}", userId, userSex, userAge);
+
+        if ("man".equals(userSex)) {
+            if (userAge < 25) {
+                return "果实A";
+            }
+
+            if (userAge >= 25) {
+                return "果实B";
+            }
+        }
+        if ("woman".equals(userSex)) {
+            if (userAge < 25) {
+                return "果实C";
+            }
+
+            if (userAge >= 25) {
+                return "果实D";
+            }
+        }
+        return null;
+    }
+}
+```
+
+✔️**组合模式重构代码**
+
+![image-20210830231802533](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210830231802533.png)
+
+![image-20210830231844430](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210830231844430.png)
+
+组合模式模型结构
+
+![image-20210830231907049](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210830231907049.png)
+
+<font color=red>**待补充！！！**</font>
+
+
+
+### 四、装饰器模式（<font color=red>Decorator Pattern</font>）
+
+初看装饰器模式有点像俄罗斯套娃、某众汽车，而装饰器的核心就是在不改变原有类的基础上给类新增功能。不改变原有类，可能有小伙伴会想到继承、AOP切面，当然这些方式都可以实现，但是使用装饰器模式会是另外一种思路更为灵活，可以避免继承导致的子类过多，也可以避免AOP带来的复杂性。
+
+![image-20210831074340587](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210831074340587.png)
+
+**案例场景模拟**
+
+![image-20210831074416897](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210831074416897.png)
+
+![image-20210831074448564](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210831074448564.png)
+
+![image-20210831074536929](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210831074536929.png)
+
+这里模拟的是Spring中的类：`HandlerInterceptor`，实现接口功能`SsoInterceptor`模拟的单点登录拦截服务。
+
+为了避免引入太多spring的内容影响对设计模式的阅读，这里使用了同名的类和方法，尽可能减少外部的依赖。
+
+**模拟单点登录的功能**
+
+```java
+public class SsoInterceptor implements HandlerInterceptor{
+
+    public boolean preHandle(String request, String response, Object handler) {
+        // 模拟获取cookie
+        String ticket = request.substring(1, 8);
+        // 模拟校验
+        return ticket.equals("success");
+    }
+
+}
+```
+
+❌**用一坨坨代码实现**
+
+此场景大多是实现的方式会采用继承类，继承类的实现方式也是一个比较通用的方式，通过继承吼重写方法，并发将自己的逻辑覆盖进去。如果是一些简单的场景且不需要不断维护和扩展的，此类实现并不会有什么，也不会导致子类过多。
+
+```java
+public class LoginSsoDecorator extends SsoInterceptor {
+
+    private static Map<String, String> authMap = new ConcurrentHashMap<String, String>();
+
+    static {
+        authMap.put("huahua", "queryUserInfo");
+        authMap.put("doudou", "queryUserInfo");
+    }
+
+    @Override
+    public boolean preHandle(String request, String response, Object handler) {
+
+        // 模拟获取cookie
+        String ticket = request.substring(1, 8);
+        // 模拟校验
+        boolean success = ticket.equals("success");
+
+        if (!success) return false;
+
+        String userId = request.substring(9);
+        String method = authMap.get(userId);
+
+        // 模拟方法校验
+        return "queryUserInfo".equals(method);
+    }
+
+}
+```
+
+以上这部分通过继承重写方法，将个人可访问哪些方法的功能添加到方法中。但是如果是比较复杂的业务流程代码，就会很混乱。
+
+✔️**装饰器模式重构代码**
+
+![image-20210831075546924](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210831075546924.png)
+
+装饰器模式模型结构
+
+![image-20210831075757171](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210831075757171.png)
+
+![image-20210831075847432](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210831075847432.png)
+
+
+
+代码实现：
+
+抽象类装饰角色
+
+```java
+public abstract class SsoDecorator implements HandlerInterceptor {
+
+    private HandlerInterceptor handlerInterceptor;
+
+    private SsoDecorator(){}
+
+    public SsoDecorator(HandlerInterceptor handlerInterceptor) {
+        this.handlerInterceptor = handlerInterceptor;
+    }
+
+    public boolean preHandle(String request, String response, Object handler) {
+        return handlerInterceptor.preHandle(request, response, handler);
+    }
+
+}
+```
+
+![image-20210831075922651](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210831075922651.png)
+
+装饰角色逻辑实现
+
+```java
+public class LoginSsoDecorator extends SsoDecorator {
+
+    private Logger logger = LoggerFactory.getLogger(LoginSsoDecorator.class);
+
+    private static Map<String, String> authMap = new ConcurrentHashMap<String, String>();
+
+    static {
+        authMap.put("huahua", "queryUserInfo");
+        authMap.put("doudou", "queryUserInfo");
+    }
+
+    public LoginSsoDecorator(HandlerInterceptor handlerInterceptor) {
+        super(handlerInterceptor);
+    }
+
+    @Override
+    public boolean preHandle(String request, String response, Object handler) {
+        boolean success = super.preHandle(request, response, handler);
+        if (!success) return false;
+        String userId = request.substring(8);
+        String method = authMap.get(userId);
+        logger.info("模拟单点登录方法访问拦截校验：{} {}", userId, method);
+        // 模拟方法校验
+        return "queryUserInfo".equals(method);
+    }
+}
+```
+
+![image-20210831075957861](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210831075957861.png)
+
+![image-20210831080211904](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210831080211904.png)
+
+**总结**
+
+![image-20210831080232590](https://gitee.com/JongcyChen/PicBed/raw/master/img/image-20210831080232590.png)
+
+
+
+### 五、外观模式（<font color=red>Facade Pattern</font>）
+
+
+
+### 六、享元模式（<font color=red>Flyweight Pattern</font>）
+
+
+
+### 七、代理模式（<font color=red>Proxy Pattern</font>）
+
+
+
+
+
+## 行为模式<font color=green>（10节）</font>
+
+### 一、责任链模式（<font color=red>Chain of Responsibility Pattern</font>）
+
+
+
+### 二、命令模式（<font color=red>Command Pattern</font>）
+
+
+
+### 三、迭代器模式（<font color=red>Iterator Pattern</font>）
+
+
+
+### 四、中介者模式（<font color=red>Mediator Pattern</font>）
+
+
+
+### 五、备忘录模式（<font color=red>Memento Pattern</font>）
+
+
+
+### 六、观察者模式（<font color=red>Observer Pattern</font>）
+
+
+
+### 七、状态模式（<font color=red>State Pattern</font>）
+
+
+
+### 八、策略模式（<font color=red>Strategy Pattern</font>）
+
+
+
+### 九、模板模式（<font color=red>Template Pattern</font>）
+
+
+
+### 十、访问者模式（<font color=red>Visitor Pattern</font>）
