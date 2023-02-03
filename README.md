@@ -1,13 +1,7 @@
 <p align="center">
-<img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2481424715,2807309609&fm=26&gp=0.jpg" width="220" height="200"/>
+<img src="java.png" width="220" height="200"/>
 </p>
 <h1 align="center">Java-StudyFile</h1>
-
-学习项目：
-
-- [项目文档mall-learning](http://www.macrozheng.com/#/README)
-
-- gitHub地址[https://github.com/macrozheng](https://github.com/macrozheng)
 
 本文档地址链接：
 
@@ -39,6 +33,5 @@ docsify serve ./
 <img src="wxgzh.jpg" width="150" height="150"/>
 </p>
 <h3 align="center">松鼠技术站</h1>
-
 
 
