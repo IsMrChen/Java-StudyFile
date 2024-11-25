@@ -1,5 +1,5 @@
 * [首页](README)
-* [<font color=red>学习计划</font>](docs/projectFile/学习计划/studyPlan)
+* [<font color=red>技术学习线路v1.0</font>](docs/projectFile/学习计划/技术学习线路v1.0)
 
 - [SpringBoot](docs/projectFile/SpringBoot/1-快速开始)
 - [Spring](docs/projectFile/Spring/Spring_bar)
