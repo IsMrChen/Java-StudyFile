@@ -7,7 +7,7 @@
 
 [https://ismrchen.github.io/Java-StudyFile/](https://ismrchen.github.io/Java-StudyFile/)
 
-推荐使用码云地址(访问速度更快)：
+推荐使用码云地址(访问速度更快)官方已下线，不可使用了目前：
 
 [https://jongcychen.gitee.io/java-studyfile](https://jongcychen.gitee.io/java-studyfile)
 
